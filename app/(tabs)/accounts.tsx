@@ -70,6 +70,30 @@ export default function AccountsScreen() {
     setRefreshing(false);
   }, []);
 
+  // --- NOVO: Cálculo da receita total ---
+  const receita = useMemo(() => {
+    return accounts.reduce((acc, curr) => {
+      if (curr.type === "income") {
+        return acc + curr.value;
+      } else {
+        return acc;
+      }
+    }, 0);
+  }, [accounts]);
+  // ------------------------------------
+
+  // --- NOVO: Cálculo da despesa total ---
+  const despesa = useMemo(() => {
+    return accounts.reduce((acc, curr) => {
+      if (curr.type === "expense") {
+        return acc + curr.value;
+      } else {
+        return acc;
+      }
+    }, 0);
+  }, [accounts]);
+  // ------------------------------------
+
   // --- NOVO: Cálculo do saldo total ---
   const balance = useMemo(() => {
     return accounts.reduce((acc, curr) => {
@@ -217,20 +241,58 @@ export default function AccountsScreen() {
 
       {/* --- Exibição do Saldo --- */}
       <View style={styles.balanceContainer}>
-        <Text style={styles.balanceLabel}>Saldo Total</Text>
-        <Text
-          style={[
-            styles.balanceValue,
-            balance >= 0 ? styles.income : styles.expense,
-          ]}
-        >
-          {balance.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          })}
-        </Text>
+        
+        {/* --- Receita total --- */}
+        <View>
+          <Text style={styles.balanceLabel}>Receita</Text>
+          <Text
+            style={[
+              styles.balanceValue, styles.income,
+            ]}
+          >
+            {receita.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </Text>
+        </View>
+
+        {/* --- Despesa total --- */}
+        <View>
+          <Text style={styles.balanceLabel}>Despesa</Text>
+          <Text
+            style={[
+              styles.balanceValue, styles.expense,
+            ]}
+          >
+            {despesa.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </Text>
+        </View>
+
+        {/* --- Saldo total --- */}
+        <View>
+          <Text style={styles.balanceLabel}>Saldo</Text>
+          <Text
+            style={[
+              styles.balanceValue,
+              balance >= 0 ? styles.income : styles.expense,
+            ]}
+          >
+            {balance.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </Text>
+        </View>
+
       </View>
       {/* -------------------------------- */}
+
+      {/* TODO: Acertar os cards */}
+      {/* TODO: Tela editar card com dropdown Categorias */}
 
       <FlatList
         data={filteredAccounts}
@@ -253,6 +315,11 @@ export default function AccountsScreen() {
               <Text style={styles.date}>
                 {new Date(item.date).toLocaleDateString("pt-BR")}
               </Text>
+
+              <Text>
+                {item.category} 
+              </Text>
+
               <Text
                 style={[
                   styles.type,
@@ -466,13 +533,13 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   balanceLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: colors.textSecondary,
     fontWeight: "500",
     marginBottom: 4,
   },
   balanceValue: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
   },
   // ----------------------------------
